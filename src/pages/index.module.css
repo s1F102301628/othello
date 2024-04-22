@@ -8,7 +8,7 @@
   padding: 0 0.5rem;
 }
 
-.boardstyle {
+.boardStyle {
   display: flex;
   flex-wrap: wrap;
   width: 640px;
