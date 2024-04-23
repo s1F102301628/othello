@@ -40,13 +40,26 @@ const Home = () => {
           newBoard;
         }
     } */
-    if (board[y + 1] !== undefined && board[y + 1][x] === 2 / turnColor) {
-      
+    for (let i = 1; i < 8; i++)
+      if (
+        board[y + 1] !== undefined && //下に行があるかどうか確認
+        board[y + 1][x] === 2 / turnColor && //一個下が相手の駒か確認
+        board[y + i] !== undefined && // 置こうとしたマスの下が存在するか確認
+        board[y + i][x] === turnColor //置こうとしたマスの下を探索し自分の駒があるか確認
+      ) {
+        newBoard[y][x] = turnColor;
+        newBoard[y + 1][x] = turnColor;
+      }
+    /*if (
+      board[y - 1] !== undefined && //上に行があるかどうか確認
+      board[y - 1][x] === 2 / turnColor && //一個上が相手の駒か確認
+      board[y - 1][x] === turnColor //置こうとしたマスの上を探索し自分の駒があるか確認
+    ) {
       newBoard[y][x] = turnColor;
-      newBoard[y + 1][x] = turnColor;
+      newBoard[y - 1][x] = turnColor;
       setTurnColor(2 / turnColor);
       setBoard(newBoard);
-    }
+    }*/
   };
   return (
     <div className={styles.container}>
