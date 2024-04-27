@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import styles from './index.module.css';
 
 const Home = () => {
@@ -13,6 +14,25 @@ const Home = () => {
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
   ]);
+  const [blackCount, setBlackCount] = useState(0);
+  const [whiteCount, setWhiteCount] = useState(0);
+
+  useEffect(() => {
+    countStones();
+  }, [board]);
+
+  const countStones = () => {
+    let black = 0;
+    let white = 0;
+    board.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell === 1) black++;
+        else if (cell === 2) white++;
+      });
+    });
+    setBlackCount(black);
+    setWhiteCount(white);
+  };
   const clickHandler = (x: number, y: number) => {
     const newBoard = structuredClone(board);
     newBoard[y][x] = turnColor;
@@ -51,6 +71,10 @@ const Home = () => {
   };
   return (
     <div className={styles.container}>
+      <div className={styles.scoreboardStyle}>
+        <div>Black: {blackCount}</div>
+        <div>White: {whiteCount}</div>
+      </div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (

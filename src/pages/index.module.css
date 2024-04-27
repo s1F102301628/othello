@@ -8,6 +8,14 @@
   padding: 0 0.5rem;
 }
 
+.scoreboardStyle {
+  display: flex;
+  flex-wrap: flex;
+  width: 480px;
+  height: 480px;
+  background-color: aqua;
+}
+
 .boardStyle {
   display: flex;
   flex-wrap: wrap;
