@@ -72,8 +72,11 @@ const Home = () => {
   return (
     <div className={styles.container}>
       <div className={styles.scoreboardStyle}>
-        <div>Black: {blackCount}</div>
-        <div>White: {whiteCount}</div>
+        <div className={styles.scoretextStyle}>
+          <div>現在 のターン</div>
+          <div>黒のコマ: {blackCount}</div>
+          <div>白のコマ: {whiteCount}</div>
+        </div>
       </div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
