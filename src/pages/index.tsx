@@ -73,7 +73,7 @@ const Home = () => {
     <div className={styles.container}>
       <div className={styles.scoreboardStyle}>
         <div className={styles.scoretextStyle}>
-          <div>現在 のターン</div>
+          <div>現在 {turnColor === 1 ? '黒' : '白'} のターン</div>
           <div>黒のコマ: {blackCount}</div>
           <div>白のコマ: {whiteCount}</div>
         </div>
