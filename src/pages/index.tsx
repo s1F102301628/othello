@@ -7,10 +7,10 @@ const Home = () => {
   const [board, setBoard] = useState([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 3, 0, 0, 0],
+    [0, 0, 0, 1, 2, 3, 0, 0],
+    [0, 0, 3, 2, 1, 0, 0, 0],
+    [0, 0, 0, 3, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
   ]);
@@ -33,7 +33,8 @@ const Home = () => {
     setBlackCount(black);
     setWhiteCount(white);
   };
-  const clickHandler = (x: number, y: number) => {
+  const clickHandler = (x, y) => {
+    if (board[y][x] !== 3) return; //候補地以外に置けない
     const newBoard = structuredClone(board);
     newBoard[y][x] = turnColor;
     const directions = [
@@ -46,8 +47,6 @@ const Home = () => {
       [1, -1],
       [0, -1],
     ];
-    if (board[y][x] !== 0) return;
-
     for (let i = 0; i < 8; i++) {
       if (
         board[y + directions[i][0]] !== undefined &&
