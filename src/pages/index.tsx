@@ -95,6 +95,14 @@ const Home = () => {
         }
       }
     }
+    for (let n = 0; n < 8; n++) {
+      for (let o = 0; o < 8; o++) {
+        if (newBoard[n][o] !== 3) {
+          setTurnColor(2 / turnColor);
+        }
+      }
+    }
+
     setBoard(newBoard);
   };
   return (
@@ -121,7 +129,7 @@ const Home = () => {
                 />
               )}
             </div>
-          ))
+          )),
         )}
       </div>
     </div>
