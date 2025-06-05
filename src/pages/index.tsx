@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-
 import styles from './index.module.css';
 
 const Home = () => {
-  const [turnColor, setTurnColor] = useState(1);
+  const [turnColor, setTurnColor] = useState(1); // 1=黒, 2=白
   const [board, setBoard] = useState([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -16,10 +15,38 @@ const Home = () => {
   ]);
   const [blackCount, setBlackCount] = useState(0);
   const [whiteCount, setWhiteCount] = useState(0);
+  const [passCount, setPassCount] = useState(0);
+  const [winner, setWinner] = useState('');
+
+  const directions = [
+    [-1, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, 1],
+    [1, 1],
+    [1, 0],
+    [1, -1],
+    [0, -1],
+  ];
 
   useEffect(() => {
     countStones();
   }, [board]);
+
+  useEffect(() => {
+    const hasMove = calculateValidMoves(turnColor, board);
+    if (!hasMove) {
+      if (passCount + 1 >= 2) {
+        determineWinner();
+        return;
+      }
+      alert(`${turnColor === 1 ? '黒' : '白'}は置けないためスキップされました`);
+      setPassCount((prev) => prev + 1);
+      setTurnColor(2 / turnColor);
+    } else {
+      setPassCount(0);
+    }
+  }, [turnColor]);
 
   const countStones = () => {
     let black = 0;
@@ -33,85 +60,96 @@ const Home = () => {
     setBlackCount(black);
     setWhiteCount(white);
   };
-  const clickHandler = (x: number, y: number) => {
-    if (board[y][x] !== 3) return; //候補地以外に置けない
-    const newBoard = structuredClone(board);
-    const directions = [
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, 1],
-      [1, 1],
-      [1, 0],
-      [1, -1],
-      [0, -1],
-    ];
-    for (let i = 0; i < 8; i++) {
-      if (
-        newBoard[y + directions[i][0]] !== undefined &&
-        newBoard[y + directions[i][0]][x + directions[i][1]] === 2 / turnColor
-      ) {
-        for (let j = 1; j < 8; j++) {
-          if (
-            newBoard[y + directions[i][0] * j] !== undefined &&
-            newBoard[y + directions[i][0] * j][x + directions[i][1] * j] === turnColor
-          ) {
-            for (let k = j; k > 0; k--) {
-              newBoard[y][x] = turnColor;
-              newBoard[y + directions[i][0] * k][x + directions[i][1] * k] = turnColor;
-            }
 
-            setTurnColor(2 / turnColor);
+  const determineWinner = () => {
+    if (blackCount > whiteCount) setWinner('黒の勝ち');
+    else if (whiteCount > blackCount) setWinner('白の勝ち');
+    else setWinner('引き分け');
+  };
+
+  const calculateValidMoves = (color: number, targetBoard: number[][]): boolean => {
+    const newBoard = structuredClone(targetBoard);
+    let hasMove = false;
+
+    // 既存の候補地を消す
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (newBoard[y][x] === 3) newBoard[y][x] = 0;
+      }
+    }
+
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (newBoard[y][x] !== 0) continue;
+        for (const [dy, dx] of directions) {
+          let ny = y + dy;
+          let nx = x + dx;
+          let foundOpponent = false;
+
+          while (ny >= 0 && ny < 8 && nx >= 0 && nx < 8 && newBoard[ny][nx] === 2 / color) {
+            ny += dy;
+            nx += dx;
+            foundOpponent = true;
           }
-        }
-      }
-    }
 
-    for (let l = 0; l < 8; l++) {
-      for (let m = 0; m < 8; m++) {
-        if (newBoard[l][m] === 3) {
-          newBoard[l][m] = 0;
-        }
-      }
-    }
-
-    for (let l = 0; l < 8; l++) {
-      for (let m = 0; m < 8; m++) {
-        for (let i = 0; i < 8; i++) {
           if (
-            newBoard[l][m] === 0 &&
-            newBoard[l + directions[i][0]] !== undefined &&
-            newBoard[l + directions[i][0]][m + directions[i][1]] === turnColor
+            foundOpponent &&
+            ny >= 0 &&
+            ny < 8 &&
+            nx >= 0 &&
+            nx < 8 &&
+            newBoard[ny][nx] === color
           ) {
-            for (let j = 1; j < 8; j++) {
-              if (
-                newBoard[l + directions[i][0] * j] !== undefined &&
-                newBoard[l + directions[i][0] * j][m + directions[i][1] * j] === 2 / turnColor
-              ) {
-                newBoard[l][m] = 3;
-              }
-            }
+            newBoard[y][x] = 3;
+            hasMove = true;
+            break;
           }
-        }
-      }
-    }
-    for (let n = 0; n < 8; n++) {
-      for (let o = 0; o < 8; o++) {
-        if (newBoard[n][o] !== 3) {
-          setTurnColor(2 / turnColor);
         }
       }
     }
 
     setBoard(newBoard);
+    return hasMove;
   };
+
+  const clickHandler = (x: number, y: number) => {
+    if (board[y][x] !== 3 || winner) return;
+
+    const newBoard = structuredClone(board);
+    newBoard[y][x] = turnColor;
+
+    for (const [dy, dx] of directions) {
+      let ny = y + dy;
+      let nx = x + dx;
+      const toFlip: [number, number][] = [];
+
+      while (ny >= 0 && ny < 8 && nx >= 0 && nx < 8 && newBoard[ny][nx] === 2 / turnColor) {
+        toFlip.push([ny, nx]);
+        ny += dy;
+        nx += dx;
+      }
+
+      if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8 && newBoard[ny][nx] === turnColor) {
+        toFlip.forEach(([fy, fx]) => {
+          newBoard[fy][fx] = turnColor;
+        });
+      }
+    }
+
+    setBoard(newBoard);
+    setTurnColor(2 / turnColor);
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.scoreboardStyle}>
-        <div className={styles.scoretextStyle}>
-          <div>現在 {turnColor === 1 ? '黒' : '白'} のターン</div>
-          <div>黒のコマ: {blackCount}</div>
-          <div>白のコマ: {whiteCount}</div>
+      <div className={styles.rightPanel}>
+        <div className={styles.scoreboardStyle}>
+          <div className={styles.scoretextStyle}>
+            <div>現在 {turnColor === 1 ? '黒' : '白'} のターン</div>
+            <div>黒のコマ: {blackCount}</div>
+            <div>白のコマ: {whiteCount}</div>
+            {winner && <div className={styles.winnerStyle}>🎉 {winner} 🎉</div>}
+          </div>
         </div>
       </div>
       <div className={styles.boardStyle}>
